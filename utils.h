@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <gc.h>
 
 /*
  * Search and replace a string with another string , in a string
@@ -58,22 +59,25 @@ str_replace (char const *search, char const *replace, char *subject)
   return new_subject;
 }
 
+#define BUFLEN 256
+
 /* Resolve aliases in current HOSTALIASES file, returns NULL in case of failure
   the char* returned need to be freed
   */
 static inline char *
-resolveAlias (const char *name, char *buf, const int buflen)
+resolveAlias (const char *name)
 {
   const char *eHostAliases =
     str_replace ("~", getenv ("HOME"), getenv ("HOSTALIASES"));
   if (eHostAliases != NULL && access (eHostAliases, R_OK) != -1)
     {
       FILE *f = fopen (eHostAliases, "r");
-      buf[buflen - 1] = '\0';
+      char *buf = GC_MALLOC_ATOMIC(BUFLEN * sizeof(char));
+      buf[BUFLEN - 1] = '\0';
       size_t len = strlen (name);
-      while (fgets (buf, buflen - 1, f))
+      while (fgets (buf, BUFLEN - 1, f))
 	{
-	  if (strncmp (buf, name, len) == 0)
+	  if (strncmp (buf, name, len < BUFLEN ? len : BUFLEN) == 0)
 	    {
 	      char *token = strtok (buf, " ");
 	      while (token != NULL)

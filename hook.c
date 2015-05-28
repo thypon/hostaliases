@@ -7,9 +7,6 @@
 #define __USE_GNU
 #include <dlfcn.h>
 
-#define BUFLEN 256
-static char buf[BUFLEN];
-
 /*
  *	Overrides real gethostbyname
  * */
@@ -21,7 +18,7 @@ struct hostent *gethostbyname(const char *name)
 	gethostbyname_real = dlsym(RTLD_NEXT, "gethostbyname");
 
     // Call real gethostbyname with resolved alias from HOSTALIASES variable
-    const char *alias = resolveAlias(name, buf, BUFLEN);
+    const char *alias = resolveAlias(name);
     struct hostent *ret = gethostbyname_real(alias ? alias : name);
     return ret;
 }
@@ -38,7 +35,7 @@ struct hostent *gethostbyname2(const char *name, int af)
 	gethostbyname2_real = dlsym(RTLD_NEXT, "gethostbyname2");
 
     // Call real gethostbyname2 with resolved alias from HOSTALIASES variable
-    const char *alias = resolveAlias(name, buf, BUFLEN);
+    const char *alias = resolveAlias(name);
     struct hostent *ret = gethostbyname2_real(alias ? alias : name, af);
     return ret;
 }
@@ -60,7 +57,7 @@ gethostbyname_r(const char *name,
 	gethostbyname_r_real = dlsym(RTLD_NEXT, "gethostbyname_r");
 
     // Call real gethostbyname_r with resolved alias from HOSTALIASES variable
-    const char *alias = resolveAlias(name, buf, BUFLEN);
+    const char *alias = resolveAlias(name);
     int mret =
 	gethostbyname_r_real(alias ? alias : name, ret, buf, buflen,
 			     result,
@@ -84,7 +81,7 @@ gethostbyname2_r(const char *name, int af,
 	gethostbyname2_r_real = dlsym(RTLD_NEXT, "gethostbyname2_r");
 
     // Call real gethostbyname2_r with resolved alias from HOSTALIASES variable
-    const char *alias = resolveAlias(name, buf, BUFLEN);
+    const char *alias = resolveAlias(name);
     int mret =
 	gethostbyname2_r_real(alias ? alias : name, af, ret, buf, buflen,
 			      result,
@@ -108,7 +105,7 @@ getaddrinfo(const char *node, const char *service,
 	getaddrinfo_real = dlsym(RTLD_NEXT, "getaddrinfo");
 
     // Call real getaddrinfo with resolved alias from HOSTALIASES variable
-    const char *alias = resolveAlias(node, buf, BUFLEN);
+    const char *alias = resolveAlias(node);
     int ret = getaddrinfo_real(alias ? alias : node, service, hints, res);
     return ret;
 }
