@@ -1,8 +1,8 @@
 TARGET = hostaliases.so
-LIBS = -ldl
+LIBS += -ldl
 CC = gcc
-CFLAGS = -g -Wall -fPIC
-LDFLAGS = -shared
+MCFLAGS = -g -Wall -fPIC $(CFLAGS)
+MLDFLAGS = -shared $(CFLAGS)
 PREFIX = /usr/
 
 .PHONY: default all clean
@@ -14,12 +14,12 @@ OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c))
 HEADERS = $(wildcard *.h)
 
 %.o: %.c $(HEADERS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -c $< -o $@
+	$(CC) $(MCFLAGS) $(MLDFLAGS) -c $< -o $@
 
 .PRECIOUS: $(TARGET) $(OBJECTS)
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $@
+	$(CC) $(MCFLAGS) $(MLDFLAGS) $(OBJECTS) $(LIBS) -o $@
 
 install: $(TARGET)
 	mkdir -p $(DESTDIR)$(PREFIX)/lib/
